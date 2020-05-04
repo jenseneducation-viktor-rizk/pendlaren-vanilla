@@ -1,12 +1,17 @@
-// api-nyckel-reseplaneraren = a467c024-e7c6-4821-bd29-c47689dd6a7b
+// let resekey = "a467c024-e7c6-4821-bd29-c47689dd6a7b"
 // api-nyckel-stolptidtabeller = 7c8fd7e3-9be1-49af-921f-ebd3ea3d61c8
 
 
 window.onload=function (){
     let geoLocation = document.querySelector("#location");
-    let geoBtn = document.querySelector("#geoButton");
+    let stationBtn = document.querySelector("#station-button");
+    let nearbyStns = document.querySelector("#nearby-stations");
+    
+    let baseUrlStns = "https://api.resrobot.se/v2/location.nearbystops?key=a467c024-e7c6-4821-bd29-c47689dd6a7b&format=json";
     let myLong = "";
     let myLat = "";
+
+    getLocation();
     
     function getCurrentPosition() {
         return new Promise((resolve, reject) => {
@@ -30,9 +35,33 @@ window.onload=function (){
         geoLocation.innerHTML = "Latitude: " + myLong + "<br>Longitude: " + myLat
     };
 
-    geoBtn.addEventListener("click", function(){
-        getLocation();
-    });
+    function getNearbyStations() {
+        let urlStns = baseUrlStns + "&originCoordLong=" + myLong + "&originCoordLat=" + myLat;
+        let data = fetch(urlStns)
+        .then(res => res.json())
+
+        return data;
+    } 
+
+    async function getStations() {
+        try {
+            let stations = await getNearbyStations()
+            writeStations(stations.StopLocation)
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    function writeStations(stns) {
+        for (let i = 0; i < stns.length; i++) {
+            console.log(stns[i].name);
+        }
+    }
+
+
+    stationBtn.addEventListener("click", function() {
+        getStations();
+    })
     
     
 
